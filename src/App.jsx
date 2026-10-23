@@ -246,12 +246,9 @@ function App() {
   const currentExercise = PROGRAM[activeDay][currentExerciseIndex]
   const isLastExercise = currentExerciseIndex === PROGRAM[activeDay].length - 1
 
-  // --- ЛОГИКА БЛОКИРОВКИ КНОПКИ "СЛЕДУЮЩЕЕ" ---
-  // 1. Вытаскиваем целевое количество подходов из строки (например, из "4 × 6–10" берем 4)
   const targetSetsStr = currentExercise.target.split(' × ')[0];
   const targetSets = parseInt(targetSetsStr) || 1;
   
-  // 2. Считаем, сколько подходов сделано СЕГОДНЯ
   const todayDate = new Date().toLocaleDateString('ru-RU');
   const completedSetsToday = workouts.filter(
     w => w.day === activeDay && 
@@ -259,7 +256,6 @@ function App() {
          w.date === todayDate
   ).length;
 
-  // 3. Проверяем, выполнена ли норма
   const isCompleted = completedSetsToday >= targetSets;
 
   return (
@@ -316,12 +312,12 @@ function App() {
               <button 
                 className="next-btn" 
                 onClick={() => setCurrentExerciseIndex(prev => prev + 1)}
-                disabled={isLastExercise || !isCompleted} // Блокируем, если не выполнено
+                disabled={isLastExercise || !isCompleted}
               >
                 {isLastExercise 
                   ? 'Конец тренировки' 
                   : (!isCompleted 
-                      ? `Выполнено ${completedSetsToday} из ${targetSets}` // Текст прогресса
+                      ? `Выполнено ${completedSetsToday} из ${targetSets}`
                       : 'Следующее →')}
               </button>
             </div>

@@ -25,6 +25,7 @@
   --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.05), 0 4px 6px -2px rgba(0,0,0,0.025);
 }
 
+/* Жесткий сброс для всех элементов */
 * {
   box-sizing: border-box;
   margin: 0;
@@ -32,12 +33,14 @@
   -webkit-tap-highlight-color: transparent;
 }
 
-body {
+html, body {
+  width: 100%;
+  max-width: 100vw;
+  overflow-x: hidden; /* Запрещаем горизонтальный скролл */
   background-color: var(--bg-app);
   color: var(--text-main);
   font-family: var(--font-main);
   -webkit-font-smoothing: antialiased;
-  overflow-x: hidden; /* Запрещает горизонтальный скролл */
 }
 
 /* --- ОБЩИЙ КАРКАС --- */
@@ -146,6 +149,7 @@ body {
   cursor: pointer;
   transition: all 0.2s ease;
   line-height: 1.4;
+  white-space: normal; /* Разрешаем перенос текста */
 }
 
 .sidebar-item:hover { background: var(--bg-input); }
@@ -158,7 +162,7 @@ body {
 /* Основная область */
 .exercise-main {
   flex: 1;
-  min-width: 0;
+  min-width: 0; /* КРИТИЧЕСКИ ВАЖНО: не дает блоку распирать контейнер */
 }
 
 /* --- КАРТОЧКА УПРАЖНЕНИЯ --- */
@@ -168,6 +172,8 @@ body {
   padding: 24px;
   box-shadow: var(--shadow-lg);
   margin-bottom: 24px;
+  width: 100%;
+  overflow: hidden; /* Страховка от вылезания */
 }
 
 .exercise-header-main h2 {
@@ -180,8 +186,9 @@ body {
 
 .exercise-meta-main {
   display: flex;
+  flex-wrap: wrap; /* Если не влезет - перенесется */
   justify-content: center;
-  gap: 16px;
+  gap: 12px;
   font-size: 14px;
   font-weight: 500;
   color: var(--text-muted);
@@ -228,7 +235,7 @@ body {
 
 .timer-display {
   font-family: var(--font-mono);
-  font-size: 36px;
+  font-size: 32px; /* Чуть уменьшили */
   font-weight: 700;
   color: var(--text-main);
   letter-spacing: -1px;
@@ -237,7 +244,7 @@ body {
 .timer-container.active-timer .timer-display { color: var(--success); }
 
 .timer-btn {
-  padding: 12px 24px;
+  padding: 12px 20px;
   border-radius: 12px;
   border: none;
   font-weight: 600;
@@ -245,6 +252,7 @@ body {
   cursor: pointer;
   font-size: 15px;
   transition: transform 0.1s ease;
+  white-space: nowrap;
 }
 
 .timer-btn:active { transform: scale(0.96); }
@@ -255,7 +263,7 @@ body {
 .main-form {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 12px;
   background: var(--bg-input);
   padding: 16px;
   border-radius: 16px;
@@ -266,15 +274,16 @@ body {
 .weight-control-group {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 8px;
+  width: 100%;
 }
 
 .quick-btn {
   background: var(--bg-card);
   border: 1px solid var(--border-color);
   border-radius: 10px;
-  padding: 0 16px;
-  height: 52px;
+  padding: 0 12px;
+  height: 48px;
   font-size: 14px;
   font-weight: 600;
   color: var(--text-main);
@@ -282,6 +291,7 @@ body {
   white-space: nowrap;
   box-shadow: var(--shadow-sm);
   transition: all 0.2s ease;
+  flex-shrink: 0; /* Запрещаем сжиматься кнопкам */
 }
 
 .quick-btn:hover { background: #f1f5f9; }
@@ -289,6 +299,7 @@ body {
 
 .main-form input {
   width: 100%;
+  min-width: 0; /* КРИТИЧЕСКИ ВАЖНО: разрешает полю сжиматься */
   padding: 14px;
   border: 2px solid var(--border-color);
   border-radius: 12px;
@@ -311,6 +322,7 @@ body {
   display: flex;
   align-items: center;
   gap: 12px;
+  width: 100%;
 }
 
 .reps-control-group span {
@@ -353,7 +365,7 @@ body {
   align-items: center;
   justify-content: space-between;
   background: var(--bg-card);
-  padding: 16px;
+  padding: 12px 16px;
   border-radius: 12px;
   border: 1px solid var(--border-color);
   box-shadow: var(--shadow-sm);
@@ -363,7 +375,7 @@ body {
   font-size: 13px;
   font-weight: 500;
   color: var(--text-muted);
-  width: 80px;
+  width: 70px; /* Уменьшили */
 }
 
 .set-data {
@@ -412,6 +424,7 @@ body {
   display: flex;
   gap: 12px;
   margin-bottom: 32px;
+  width: 100%;
 }
 
 .next-btn, .prev-btn {
@@ -424,6 +437,7 @@ body {
   cursor: pointer;
   border: none;
   transition: all 0.2s ease;
+  white-space: nowrap; /* Текст в кнопке не переносится */
 }
 
 .next-btn {
@@ -460,6 +474,7 @@ body {
   box-shadow: var(--shadow-sm);
   text-align: center;
   border: 1px solid var(--border-color);
+  width: 100%;
 }
 
 .backup-section p {
@@ -472,10 +487,12 @@ body {
 .backup-buttons {
   display: flex;
   gap: 12px;
+  flex-wrap: wrap; /* Кнопки могут перенестись, если тесно */
 }
 
 .backup-btn {
   flex: 1;
+  min-width: 120px;
   padding: 12px;
   background: var(--bg-input);
   border: 1px solid var(--border-color);
@@ -491,12 +508,17 @@ body {
 .backup-btn:hover { background: #e2e8f0; }
 
 /* ========================================= */
-/* --- МОБИЛЬНАЯ АДАПТАЦИЯ (ИСПРАВЛЕННАЯ) --- */
+/* --- МОБИЛЬНАЯ АДАПТАЦИЯ (ЖЕСТКАЯ) --- */
 /* ========================================= */
 @media (max-width: 768px) {
-  .app-content { padding: 16px 12px; }
+  .app-content {
+    padding: 12px 10px; /* Максимально уменьшаем отступы */
+  }
 
-  .layout-container { flex-direction: column; gap: 16px; }
+  .layout-container {
+    flex-direction: column;
+    gap: 12px;
+  }
 
   /* Горизонтальное меню упражнений */
   .exercise-sidebar {
@@ -505,53 +527,84 @@ body {
     position: static;
     flex-direction: row;
     overflow-x: auto;
-    padding: 10px;
-    border-radius: 16px;
-    box-shadow: var(--shadow-sm);
-    scrollbar-width: none; 
+    padding: 8px;
+    border-radius: 12px;
+    scrollbar-width: none;
     -webkit-overflow-scrolling: touch;
   }
+  
   .exercise-sidebar::-webkit-scrollbar { display: none; }
   .exercise-sidebar h3 { display: none; }
 
   .sidebar-item {
     white-space: nowrap;
-    padding: 10px 16px;
-    border-radius: 20px;
+    padding: 8px 14px;
+    border-radius: 16px;
     background: var(--bg-input);
+    font-size: 13px;
   }
   .sidebar-item.active { background: var(--primary); color: white; }
 
-  /* Карточка упражнения */
-  .exercise-page { padding: 16px; width: 100%; }
-  .exercise-header-main h2 { font-size: 20px; }
-  .main-form { padding: 12px; width: 100%; }
+  /* Карточка */
+  .exercise-page {
+    padding: 16px 12px; /* Уменьшили внутренние отступы */
+  }
+  
+  .exercise-header-main h2 { font-size: 18px; }
+  .exercise-meta-main { font-size: 12px; gap: 8px; }
 
-  /* Жесткая фиксация формы ввода для iPhone */
-  .weight-control-group {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    width: 100%;
-    gap: 8px;
+  /* Плашка "Прошлый раз" */
+  .last-result-banner {
+    font-size: 12px;
+    padding: 8px 12px;
+    flex-direction: column;
+    gap: 4px;
+    text-align: center;
   }
 
-  .weight-control-group input {
-    flex: 1;
-    min-width: 0; /* Критически важно, чтобы поле сжималось */
-    padding: 10px;
+  /* Таймер */
+  .timer-container { padding: 10px 12px; }
+  .timer-display { font-size: 26px; }
+  .timer-btn { padding: 10px 14px; font-size: 14px; }
+
+  /* Форма ввода */
+  .main-form { padding: 10px; gap: 10px; }
+  
+  .weight-control-group {
+    gap: 4px;
   }
 
   .quick-btn {
-    flex: 0 0 auto;
-    padding: 0 10px;
-    font-size: 13px;
-    height: 48px;
+    padding: 0 6px; /* Кнопки становятся тонкими */
+    font-size: 12px;
+    height: 44px;
   }
 
-  .reps-control-group { width: 100%; }
+  .main-form input {
+    padding: 10px;
+    height: 44px;
+    font-size: 15px;
+  }
 
-  /* Кнопки навигации друг под другом */
-  .nav-buttons { flex-direction: column; gap: 10px; }
-  .prev-btn, .next-btn { width: 100%; }
+  .icon-btn.add {
+    height: 44px;
+    font-size: 20px;
+  }
+
+  /* История */
+  .set-item { padding: 10px; }
+  .set-date { width: 60px; font-size: 11px; }
+  .set-data { font-size: 14px; }
+
+  /* Навигация */
+  .nav-buttons {
+    flex-direction: column; /* Кнопки друг под другом */
+    gap: 8px;
+  }
+  
+  .prev-btn, .next-btn {
+    width: 100%;
+    padding: 14px;
+    font-size: 15px;
+  }
 }
