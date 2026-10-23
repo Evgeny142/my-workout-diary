@@ -1,0 +1,548 @@
+/* --- ГЛОБАЛЬНЫЕ ПЕРЕМЕННЫЕ (Палитра и шрифты) --- */
+:root {
+  --font-main: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-mono: 'SF Mono', Consolas, monospace;
+  
+  --bg-app: #f4f6f8;        /* Светло-серый фон приложения */
+  --bg-card: #ffffff;       /* Белый фон карточек */
+  --bg-input: #f8fafc;      /* Фон полей ввода */
+  
+  --text-main: #0f172a;     /* Почти черный (глубокий синий) */
+  --text-muted: #64748b;    /* Серый для второстепенного текста */
+  --border-color: #e2e8f0;  /* Цвет границ */
+  
+  --primary: #4f46e5;       /* Насыщенный индиго (вместо обычного синего) */
+  --primary-hover: #4338ca;
+  --primary-light: #e0e7ff; /* Светло-индиго для фонов активных элементов */
+  
+  --success: #10b981;       /* Изумрудно-зеленый */
+  --danger: #ef4444;        /* Мягкий красный */
+  --warning-bg: #fffbeb;    /* Желтоватый фон для плашки "Прошлый раз" */
+  --warning-text: #b45309;
+  
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.05), 0 1px 2px rgba(0,0,0,0.03);
+  --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.05), 0 2px 4px -1px rgba(0,0,0,0.03);
+  --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.05), 0 4px 6px -2px rgba(0,0,0,0.025);
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  -webkit-tap-highlight-color: transparent;
+}
+
+body {
+  background-color: var(--bg-app);
+  color: var(--text-main);
+  font-family: var(--font-main);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* --- ОБЩИЙ КАРКАС --- */
+.app-container {
+  max-width: 1000px; /* Сделали чуть шире для десктопа */
+  margin: 0 auto;
+  min-height: 100vh;
+  padding-top: env(safe-area-inset-top);
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+/* --- ШАПКА --- */
+.app-header {
+  background: rgba(244, 246, 248, 0.85); /* Полупрозрачный фон в тон приложения */
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  padding: 16px 20px 0;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.app-header h1 {
+  font-size: 20px;
+  font-weight: 700;
+  text-align: center;
+  margin-bottom: 16px;
+  letter-spacing: -0.5px;
+}
+
+/* Вкладки дней (как сегментированный контрол в iOS) */
+.day-tabs {
+  display: flex;
+  gap: 4px;
+  padding: 4px;
+  background: #e2e8f0;
+  border-radius: 12px;
+  max-width: 400px;
+  margin: 0 auto 16px auto;
+}
+
+.tab-btn {
+  flex: 1;
+  padding: 8px;
+  border: none;
+  background: transparent;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.tab-btn.active {
+  background: var(--bg-card);
+  color: var(--primary);
+  box-shadow: var(--shadow-sm);
+}
+
+/* --- КОМПОНОВКА --- */
+.app-content {
+  padding: 24px 20px;
+}
+
+.layout-container {
+  display: flex;
+  gap: 24px;
+  align-items: flex-start;
+}
+
+/* Боковое меню (ПК) */
+.exercise-sidebar {
+  flex: 0 0 260px;
+  position: sticky;
+  top: 100px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  background: var(--bg-card);
+  padding: 16px;
+  border-radius: 20px;
+  box-shadow: var(--shadow-md);
+}
+
+.exercise-sidebar h3 {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 8px;
+  padding-left: 8px;
+}
+
+.sidebar-item {
+  text-align: left;
+  padding: 12px 16px;
+  background: transparent;
+  border: none;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-main);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  line-height: 1.4;
+}
+
+.sidebar-item:hover {
+  background: var(--bg-input);
+}
+
+.sidebar-item.active {
+  background: var(--primary-light);
+  color: var(--primary);
+  font-weight: 600;
+}
+
+/* Основная область */
+.exercise-main {
+  flex: 1;
+  min-width: 0;
+}
+
+/* --- КАРТОЧКА УПРАЖНЕНИЯ --- */
+.exercise-page {
+  background: var(--bg-card);
+  border-radius: 24px;
+  padding: 24px;
+  box-shadow: var(--shadow-lg);
+  margin-bottom: 24px;
+}
+
+.exercise-header-main h2 {
+  font-size: 24px;
+  font-weight: 700;
+  margin-bottom: 8px;
+  text-align: center;
+  letter-spacing: -0.5px;
+}
+
+.exercise-meta-main {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-muted);
+  margin-bottom: 24px;
+}
+
+/* Плашка "Прошлый раз" */
+.last-result-banner {
+  background: var(--warning-bg);
+  border: 1px solid #fde68a;
+  border-radius: 12px;
+  padding: 12px 16px;
+  font-size: 14px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  color: var(--warning-text);
+}
+
+.last-result-banner strong {
+  font-size: 16px;
+  background: #fef3c7;
+  padding: 4px 8px;
+  border-radius: 6px;
+}
+
+/* --- ТАЙМЕР --- */
+.timer-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: var(--bg-input);
+  padding: 12px 20px;
+  border-radius: 16px;
+  margin-bottom: 24px;
+  border: 2px solid transparent;
+  transition: all 0.3s ease;
+}
+
+.timer-container.active-timer {
+  background: #f0fdf4; /* Светло-зеленый при запуске */
+  border-color: #bbf7d0;
+}
+
+.timer-display {
+  font-family: var(--font-mono);
+  font-size: 36px;
+  font-weight: 700;
+  color: var(--text-main);
+  letter-spacing: -1px;
+}
+
+.timer-container.active-timer .timer-display {
+  color: var(--success);
+}
+
+.timer-btn {
+  padding: 12px 24px;
+  border-radius: 12px;
+  border: none;
+  font-weight: 600;
+  font-family: var(--font-main);
+  cursor: pointer;
+  font-size: 15px;
+  transition: transform 0.1s ease;
+}
+
+.timer-btn:active {
+  transform: scale(0.96);
+}
+
+.timer-btn.start { background: var(--primary); color: white; }
+.timer-btn.stop { background: var(--danger); color: white; }
+
+/* --- ФОРМА ВВОДА --- */
+.main-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  background: var(--bg-input);
+  padding: 16px;
+  border-radius: 16px;
+  margin-bottom: 24px;
+  border: 1px solid var(--border-color);
+}
+
+.weight-control-group {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.quick-btn {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  padding: 0 16px;
+  height: 52px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-main);
+  cursor: pointer;
+  white-space: nowrap;
+  box-shadow: var(--shadow-sm);
+  transition: all 0.2s ease;
+}
+
+.quick-btn:hover { background: #f1f5f9; }
+.quick-btn:active { transform: scale(0.95); box-shadow: none; }
+
+.main-form input {
+  width: 100%;
+  padding: 14px;
+  border: 2px solid var(--border-color);
+  border-radius: 12px;
+  font-size: 16px;
+  font-weight: 600;
+  font-family: var(--font-main);
+  text-align: center;
+  background: var(--bg-card);
+  color: var(--text-main);
+  transition: all 0.2s ease;
+  outline: none;
+}
+
+.main-form input:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 4px var(--primary-light);
+}
+
+.reps-control-group {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.reps-control-group span {
+  font-weight: 600;
+  color: var(--text-muted);
+  font-size: 20px;
+}
+
+.icon-btn.add {
+  background: var(--success);
+  color: white;
+  width: 100%;
+  height: 52px;
+  font-size: 24px;
+  border-radius: 12px;
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2);
+  transition: all 0.1s ease;
+}
+
+.icon-btn.add:active {
+  transform: scale(0.98);
+  box-shadow: none;
+}
+
+/* --- ИСТОРИЯ --- */
+.history-section h3 {
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 16px;
+  color: var(--text-main);
+}
+
+.logged-sets {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.set-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--bg-card);
+  padding: 16px;
+  border-radius: 12px;
+  border: 1px solid var(--border-color);
+  box-shadow: var(--shadow-sm);
+}
+
+.set-date {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-muted);
+  width: 80px;
+}
+
+.set-data {
+  font-weight: 600;
+  font-size: 16px;
+  flex: 1;
+  text-align: center;
+  color: var(--text-main);
+}
+
+.icon-btn.delete {
+  background: transparent;
+  color: #94a3b8;
+  width: 32px;
+  height: 32px;
+  font-size: 14px;
+  border: none;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.icon-btn.delete:hover {
+  background: #fee2e2;
+  color: var(--danger);
+}
+
+.show-more-btn {
+  width: 100%;
+  padding: 14px;
+  margin-top: 16px;
+  background: var(--bg-input);
+  border: 1px solid var(--border-color);
+  color: var(--text-main);
+  border-radius: 12px;
+  font-weight: 600;
+  font-family: var(--font-main);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.show-more-btn:hover { background: #e2e8f0; }
+
+/* --- НАВИГАЦИЯ --- */
+.nav-buttons {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 32px;
+}
+
+.next-btn, .prev-btn {
+  flex: 1;
+  padding: 16px;
+  border-radius: 14px;
+  font-size: 16px;
+  font-weight: 600;
+  font-family: var(--font-main);
+  cursor: pointer;
+  border: none;
+  transition: all 0.2s ease;
+}
+
+.next-btn {
+  background: var(--primary);
+  color: white;
+  box-shadow: 0 4px 12px rgba(79, 70, 229, 0.2);
+}
+
+.next-btn:hover:not(:disabled) { background: var(--primary-hover); }
+.next-btn:active:not(:disabled) { transform: scale(0.98); }
+
+.next-btn:disabled {
+  background: #e2e8f0;
+  color: #94a3b8;
+  box-shadow: none;
+  cursor: not-allowed;
+}
+
+.prev-btn {
+  background: var(--bg-card);
+  color: var(--text-main);
+  border: 1px solid var(--border-color);
+  box-shadow: var(--shadow-sm);
+  flex: 0.5; /* Кнопка "Назад" чуть уже */
+}
+
+.prev-btn:active { background: var(--bg-input); }
+
+/* --- БЭКАП (Футер) --- */
+.backup-section {
+  background: var(--bg-card);
+  border-radius: 16px;
+  padding: 20px;
+  box-shadow: var(--shadow-sm);
+  text-align: center;
+  border: 1px solid var(--border-color);
+}
+
+.backup-section p {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-muted);
+  margin-bottom: 12px;
+}
+
+.backup-buttons {
+  display: flex;
+  gap: 12px;
+}
+
+.backup-btn {
+  flex: 1;
+  padding: 12px;
+  background: var(--bg-input);
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  font-family: var(--font-main);
+  color: var(--text-main);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.backup-btn:hover { background: #e2e8f0; }
+
+/* --- МОБИЛЬНАЯ АДАПТАЦИЯ --- */
+@media (max-width: 768px) {
+  .layout-container {
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .exercise-sidebar {
+    flex: none;
+    width: 100%;
+    position: static;
+    flex-direction: row;
+    overflow-x: auto;
+    padding: 12px;
+    border-radius: 16px;
+    box-shadow: var(--shadow-sm);
+    scrollbar-width: none; 
+  }
+  
+  .exercise-sidebar::-webkit-scrollbar { display: none; }
+  .exercise-sidebar h3 { display: none; }
+
+  .sidebar-item {
+    white-space: nowrap;
+    padding: 10px 16px;
+    border-radius: 20px;
+    background: var(--bg-input);
+  }
+  
+  .sidebar-item.active {
+    background: var(--primary);
+    color: white;
+  }
+
+  .app-content { padding: 16px; }
+  .exercise-page { padding: 20px; }
+  .exercise-header-main h2 { font-size: 20px; }
+  
+  .weight-control-group { gap: 8px; }
+  .quick-btn { padding: 0 10px; font-size: 13px; height: 48px; }
+  .main-form input { height: 48px; padding: 10px; }
+}
