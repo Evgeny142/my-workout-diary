@@ -148,8 +148,8 @@ function ExercisePage({ exercise, dayName, workouts, setWorkouts }) {
             className="form-input"
           />
           <div className="quick-buttons-row">
-            <button type="button" className="quick-btn" onClick={() => adjustWeight(-1.25)}>-1.25</button>
-            <button type="button" className="quick-btn" onClick={() => adjustWeight(1.25)}>+1.25</button>
+            <button type="button" className="quick-btn" onClick={() => adjustWeight(-2.5)}>-2.5</button>
+            <button type="button" className="quick-btn" onClick={() => adjustWeight(2.5)}>+2.5</button>
           </div>
         </div>
         

@@ -44,6 +44,14 @@ html, body {
   -webkit-text-size-adjust: 100%;
 }
 
+#root {
+  width: 100%;
+  min-height: 100vh;
+  background-color: var(--bg-app);
+  display: flex;
+  flex-direction: column;
+}
+
 /* --- ОБЩИЙ КАРКАС --- */
 .app-container {
   max-width: 1000px;
