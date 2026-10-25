@@ -324,7 +324,7 @@ function App() {
                 {isLastExercise 
                   ? 'Конец тренировки' 
                   : (!isCompleted 
-                      ? `Выполнено ${completedToday} из ${targetSets}`
+                      ? `Выполнено ${completedSetsToday} из ${targetSets}`
                       : 'Следующее →')}
               </button>
             </div>
