@@ -134,30 +134,37 @@ function ExercisePage({ exercise, dayName, workouts, setWorkouts }) {
         </button>
       </div>
 
+      {/* НОВАЯ ВЕРТИКАЛЬНАЯ ФОРМА */}
       <form className="main-form" onSubmit={handleAddSet}>
-        <div className="weight-control-group">
-          <button type="button" className="quick-btn" onClick={() => adjustWeight(-1.25)}>-1.25</button>
+        
+        <div className="form-row">
+          <label className="form-label">Вес (кг)</label>
           <input
             type="number"
             step="0.01"
-            placeholder="Вес"
+            placeholder="Введите вес"
             value={weight}
             onChange={(e) => setWeight(e.target.value)}
+            className="form-input"
           />
-          <button type="button" className="quick-btn" onClick={() => adjustWeight(1.25)}>+1.25</button>
+          <div className="quick-buttons-row">
+            <button type="button" className="quick-btn" onClick={() => adjustWeight(-1.25)}>-1.25</button>
+            <button type="button" className="quick-btn" onClick={() => adjustWeight(1.25)}>+1.25</button>
+          </div>
         </div>
         
-        <div className="reps-control-group">
-          <span>×</span>
+        <div className="form-row">
+          <label className="form-label">Повторения</label>
           <input
             type="number"
-            placeholder="Повт."
+            placeholder="Введите повторения"
             value={reps}
             onChange={(e) => setReps(e.target.value)}
+            className="form-input"
           />
         </div>
         
-        <button type="submit" className="icon-btn add">+</button>
+        <button type="submit" className="icon-btn add">Добавить подход</button>
       </form>
 
       <div className="history-section">
@@ -317,7 +324,7 @@ function App() {
                 {isLastExercise 
                   ? 'Конец тренировки' 
                   : (!isCompleted 
-                      ? `Выполнено ${completedSetsToday} из ${targetSets}`
+                      ? `Выполнено ${completedToday} из ${targetSets}`
                       : 'Следующее →')}
               </button>
             </div>
