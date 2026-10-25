@@ -112,8 +112,8 @@ function ExercisePage({ exercise, dayName, workouts, setWorkouts }) {
       <div className="exercise-header-main">
         <h2>{exercise.name}</h2>
         <div className="exercise-meta-main">
-          <span>🎯 {exercise.target}</span>
-          <span>⏱ {exercise.rest}</span>
+          <span>Подходы: {exercise.target}</span>
+          <span>Отдых: {exercise.rest}</span>
         </div>
       </div>
 
