@@ -3,7 +3,7 @@
   --font-main: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
   --font-mono: 'SF Mono', Consolas, monospace;
   
-  /* Графитовая палитра без фиолетового */
+  /* Графитовая палитра */
   --bg-app: #121212;        /* Почти черный фон */
   --bg-card: #1e1e1e;       /* Темно-серый для карточек */
   --bg-input: #2c2c2c;      /* Серый для инпутов */
@@ -15,10 +15,11 @@
   /* Спокойный, профессиональный синий */
   --primary: #3b82f6;       
   --primary-hover: #2563eb;
-  --primary-light: rgba(59, 130, 246, 0.15); /* Легкая подсветка */
+  --primary-light: rgba(59, 130, 246, 0.15); 
   
-  --danger: #ef4444;        /* Красный для удаления */
-  --warning-bg: rgba(245, 158, 11, 0.15); /* Темно-желтый */
+  --danger: #ef4444;        
+  --success: #10b981;
+  --warning-bg: rgba(245, 158, 11, 0.15); 
   --warning-text: #fbbf24;
   
   --shadow-sm: 0 1px 3px rgba(0,0,0,0.5);
@@ -44,6 +45,7 @@ html, body {
   -webkit-text-size-adjust: 100%;
 }
 
+/* Убирает белые полосы по краям экрана на iPhone */
 #root {
   width: 100%;
   min-height: 100vh;
@@ -60,7 +62,7 @@ html, body {
   display: flex;
   flex-direction: column;
   padding-top: env(safe-area-inset-top);
-  padding-bottom: 120px; /* Огромный отступ, чтобы баннер Netlify ничего не перекрывал */
+  padding-bottom: 120px; /* Отступ, чтобы баннер Netlify не перекрывал низ */
 }
 
 /* --- ШАПКА --- */
@@ -168,7 +170,6 @@ html, body {
   border: 1px solid var(--border-color);
 }
 
-/* ИСПРАВЛЕНИЕ: Явно задаем белый цвет названию упражнения */
 .exercise-header-main h2 {
   font-size: 22px;
   font-weight: 700;
@@ -302,9 +303,8 @@ html, body {
 
 .quick-btn:active { background: var(--border-color); }
 
-/* ИСПРАВЛЕНИЕ: Кнопка "Добавить" теперь строгая и синяя */
 .icon-btn.add {
-  background: var(--primary); /* Убрали зеленый, сделали в тон дизайну */
+  background: var(--primary); 
   color: white;
   width: 100%;
   padding: 16px;
@@ -314,6 +314,63 @@ html, body {
   border: none;
   margin-top: 8px;
   box-shadow: 0 4px 12px rgba(59, 130, 246, 0.2);
+}
+
+/* --- НАВИГАЦИЯ И ПРОГРЕСС (Под формой) --- */
+.nav-buttons-top {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.next-btn {
+  width: 100%;
+  padding: 16px;
+  border-radius: 12px;
+  font-size: 16px;
+  font-weight: 700;
+  border: none;
+  background: var(--primary);
+  color: white;
+  transition: all 0.2s;
+}
+
+.next-btn:disabled {
+  background: var(--bg-input);
+  color: var(--text-muted);
+  border: 1px solid var(--border-color);
+  cursor: not-allowed;
+}
+
+.prev-btn-text {
+  background: transparent;
+  border: none;
+  color: var(--primary);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 8px;
+}
+
+.progress-status {
+  text-align: center;
+  font-size: 14px;
+  font-weight: 600;
+  padding: 12px;
+  margin-bottom: 24px;
+  background: var(--bg-input);
+  border-radius: 12px;
+  border: 1px solid var(--border-color);
+  color: var(--text-muted);
+  transition: all 0.3s ease;
+}
+
+.progress-status.completed {
+  background: rgba(16, 185, 129, 0.1);
+  border-color: rgba(16, 185, 129, 0.3);
+  color: var(--success);
 }
 
 /* --- ИСТОРИЯ --- */
@@ -353,7 +410,6 @@ html, body {
   color: var(--text-main);
 }
 
-/* АККУРАТНЫЙ КРЕСТИК */
 .icon-btn.delete {
   background: transparent;
   color: var(--text-muted);
@@ -372,26 +428,17 @@ html, body {
   color: var(--danger);
 }
 
-/* --- НАВИГАЦИЯ --- */
-.nav-buttons {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  margin-bottom: 24px;
-}
-
-.next-btn, .prev-btn {
+.show-more-btn {
   width: 100%;
-  padding: 16px;
-  border-radius: 12px;
-  font-size: 16px;
+  padding: 12px;
+  margin-top: 12px;
+  background: transparent;
+  border: 1px solid var(--border-color);
+  color: var(--text-muted);
+  border-radius: 10px;
   font-weight: 600;
-  border: none;
+  cursor: pointer;
 }
-
-.next-btn { background: var(--primary); color: white; }
-.next-btn:disabled { background: var(--bg-input); color: var(--text-muted); border: 1px solid var(--border-color); }
-.prev-btn { background: var(--bg-card); border: 1px solid var(--border-color); color: var(--text-main); }
 
 /* --- БЭКАП --- */
 .backup-section {
@@ -400,7 +447,7 @@ html, body {
   border-radius: 16px;
   border: 1px solid var(--border-color);
   text-align: center;
-  margin-bottom: 20px; /* Отступ от низа */
+  margin-bottom: 20px; 
 }
 
 .backup-section p {
@@ -422,6 +469,7 @@ html, body {
   border-radius: 8px;
   font-weight: 600;
   color: var(--text-main);
+  cursor: pointer;
 }
 
 /* ========================================= */
@@ -459,7 +507,12 @@ html, body {
   .sidebar-item.active { background: var(--primary-light); color: var(--primary); }
 
   .exercise-page { padding: 24px; }
-  .nav-buttons { flex-direction: row; }
-  .prev-btn { flex: 0.4; }
+  
+  .nav-buttons-top {
+    flex-direction: row-reverse; /* Кнопка Next справа, Prev слева на ПК */
+    justify-content: space-between;
+  }
+  
   .next-btn { flex: 1; }
+  .prev-btn-text { flex: 0 0 auto; }
 }

@@ -26,7 +26,8 @@ const PROGRAM = {
   ]
 }
 
-function ExercisePage({ exercise, dayName, workouts, setWorkouts }) {
+// Передаем навигацию внутрь компонента
+function ExercisePage({ exercise, dayName, workouts, setWorkouts, onNext, onPrev, showPrev, isLast }) {
   const [weight, setWeight] = useState('')
   const [reps, setReps] = useState('')
   const [showAllSets, setShowAllSets] = useState(false)
@@ -42,6 +43,12 @@ function ExercisePage({ exercise, dayName, workouts, setWorkouts }) {
 
   const previousSets = exerciseWorkouts.filter(w => w.date !== today)
   const lastResult = previousSets.length > 0 ? previousSets[0] : null
+
+  // Вычисляем прогресс прямо здесь
+  const targetSetsStr = exercise.target.split(' × ')[0];
+  const targetSets = parseInt(targetSetsStr) || 1;
+  const completedSetsToday = exerciseWorkouts.filter(w => w.date === today).length;
+  const isCompleted = completedSetsToday >= targetSets;
 
   useEffect(() => {
     const currentExWorkouts = workouts.filter(
@@ -134,13 +141,12 @@ function ExercisePage({ exercise, dayName, workouts, setWorkouts }) {
         </button>
       </div>
 
-      {/* НОВАЯ ВЕРТИКАЛЬНАЯ ФОРМА */}
       <form className="main-form" onSubmit={handleAddSet}>
-        
         <div className="form-row">
           <label className="form-label">Вес (кг)</label>
           <input
             type="number"
+            inputMode="decimal" // Вызывает цифровую клавиатуру с точкой
             step="0.01"
             placeholder="Введите вес"
             value={weight}
@@ -157,6 +163,8 @@ function ExercisePage({ exercise, dayName, workouts, setWorkouts }) {
           <label className="form-label">Повторения</label>
           <input
             type="number"
+            inputMode="numeric" // Вызывает чисто цифровую клавиатуру
+            step="1"
             placeholder="Введите повторения"
             value={reps}
             onChange={(e) => setReps(e.target.value)}
@@ -166,6 +174,31 @@ function ExercisePage({ exercise, dayName, workouts, setWorkouts }) {
         
         <button type="submit" className="icon-btn add">Добавить подход</button>
       </form>
+
+      {/* Кнопка Следующее теперь прямо под формой */}
+      <div className="nav-buttons-top">
+        <button 
+          className="next-btn" 
+          onClick={onNext}
+          disabled={isLast || !isCompleted}
+        >
+          {isLast 
+            ? 'Конец тренировки' 
+            : (!isCompleted 
+                ? 'Заполните все подходы' // Текст кнопки, если не всё выполнено
+                : 'Следующее →')}
+        </button>
+        {showPrev && (
+          <button className="prev-btn-text" onClick={onPrev}>
+            ← Предыдущее упражнение
+          </button>
+        )}
+      </div>
+
+      {/* Блок прогресса перед историей */}
+      <div className={`progress-status ${isCompleted ? 'completed' : ''}`}>
+        Выполнено {completedSetsToday} из {targetSets} подходов
+      </div>
 
       <div className="history-section">
         <h3>История:</h3>
@@ -258,18 +291,6 @@ function App() {
   const currentExercise = PROGRAM[activeDay][currentExerciseIndex]
   const isLastExercise = currentExerciseIndex === PROGRAM[activeDay].length - 1
 
-  const targetSetsStr = currentExercise.target.split(' × ')[0];
-  const targetSets = parseInt(targetSetsStr) || 1;
-  
-  const todayDate = new Date().toLocaleDateString('ru-RU');
-  const completedSetsToday = workouts.filter(
-    w => w.day === activeDay && 
-         w.exercise === currentExercise.name && 
-         w.date === todayDate
-  ).length;
-
-  const isCompleted = completedSetsToday >= targetSets;
-
   return (
     <div className="app-container">
       <header className="app-header">
@@ -309,30 +330,11 @@ function App() {
               dayName={activeDay}
               workouts={workouts}
               setWorkouts={setWorkouts}
+              isLast={isLastExercise}
+              showPrev={currentExerciseIndex > 0}
+              onNext={() => setCurrentExerciseIndex(prev => prev + 1)}
+              onPrev={() => setCurrentExerciseIndex(prev => prev - 1)}
             />
-
-            <div className="nav-buttons">
-              {currentExerciseIndex > 0 && (
-                <button 
-                  className="prev-btn" 
-                  onClick={() => setCurrentExerciseIndex(prev => prev - 1)}
-                >
-                  ← Назад
-                </button>
-              )}
-              
-              <button 
-                className="next-btn" 
-                onClick={() => setCurrentExerciseIndex(prev => prev + 1)}
-                disabled={isLastExercise || !isCompleted}
-              >
-                {isLastExercise 
-                  ? 'Конец тренировки' 
-                  : (!isCompleted 
-                      ? `Выполнено ${completedSetsToday} из ${targetSets}`
-                      : 'Следующее →')}
-              </button>
-            </div>
 
             <div className="backup-section">
               <p>Резервная копия данных:</p>
