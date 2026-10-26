@@ -26,8 +26,7 @@ const PROGRAM = {
   ]
 }
 
-// Передаем навигацию внутрь компонента
-function ExercisePage({ exercise, dayName, workouts, setWorkouts, onNext, onPrev, showPrev, isLast }) {
+function ExercisePage({ exercise, dayName, workouts, setWorkouts, onNext, onPrev, showPrev, isLast, activeSession, onFinish }) {
   const [weight, setWeight] = useState('')
   const [reps, setReps] = useState('')
   const [showAllSets, setShowAllSets] = useState(false)
@@ -41,13 +40,14 @@ function ExercisePage({ exercise, dayName, workouts, setWorkouts, onNext, onPrev
     w => w.day === dayName && w.exercise === exercise.name
   )
 
-  const previousSets = exerciseWorkouts.filter(w => w.date !== today)
-  const lastResult = previousSets.length > 0 ? previousSets[0] : null
+  // Ищем прошлый результат из ДРУГОЙ сессии (не текущей)
+  const previousSessions = exerciseWorkouts.filter(w => w.session !== activeSession)
+  const lastResult = previousSessions.length > 0 ? previousSessions[0] : null
 
-  // Вычисляем прогресс прямо здесь
+  // Считаем выполненные подходы ТОЛЬКО для текущей сессии
   const targetSetsStr = exercise.target.split(' × ')[0];
   const targetSets = parseInt(targetSetsStr) || 1;
-  const completedSetsToday = exerciseWorkouts.filter(w => w.date === today).length;
+  const completedSetsToday = exerciseWorkouts.filter(w => w.session === activeSession).length;
   const isCompleted = completedSetsToday >= targetSets;
 
   useEffect(() => {
@@ -88,7 +88,8 @@ function ExercisePage({ exercise, dayName, workouts, setWorkouts, onNext, onPrev
       exercise: exercise.name,
       weight: weight,
       reps: reps,
-      date: today
+      date: today,
+      session: activeSession // <--- Привязываем подход к текущей сессии
     }
 
     setWorkouts([newSet, ...workouts])
@@ -112,7 +113,17 @@ function ExercisePage({ exercise, dayName, workouts, setWorkouts, onNext, onPrev
     setWeight(newWeight % 1 === 0 ? newWeight.toString() : newWeight.toFixed(2))
   }
 
-  const displayedSets = showAllSets ? exerciseWorkouts : exerciseWorkouts.slice(0, 9)
+  // Показываем историю ТОЛЬКО за текущую сессию, чтобы не путаться
+  const currentSessionSets = exerciseWorkouts.filter(w => w.session === activeSession)
+  const displayedSets = showAllSets ? currentSessionSets : currentSessionSets.slice(0, 9)
+
+  // Логика кнопки "Следующее / Конец тренировки"
+  let btnText = 'Следующее →';
+  if (!isCompleted) {
+    btnText = `Выполнено ${completedSetsToday} из ${targetSets}`;
+  } else if (isLast) {
+    btnText = 'Конец тренировки';
+  }
 
   return (
     <div className="exercise-page">
@@ -146,7 +157,7 @@ function ExercisePage({ exercise, dayName, workouts, setWorkouts, onNext, onPrev
           <label className="form-label">Вес (кг)</label>
           <input
             type="number"
-            inputMode="decimal" // Вызывает цифровую клавиатуру с точкой
+            inputMode="decimal"
             step="0.01"
             placeholder="Введите вес"
             value={weight}
@@ -163,7 +174,7 @@ function ExercisePage({ exercise, dayName, workouts, setWorkouts, onNext, onPrev
           <label className="form-label">Повторения</label>
           <input
             type="number"
-            inputMode="numeric" // Вызывает чисто цифровую клавиатуру
+            inputMode="numeric"
             step="1"
             placeholder="Введите повторения"
             value={reps}
@@ -175,18 +186,13 @@ function ExercisePage({ exercise, dayName, workouts, setWorkouts, onNext, onPrev
         <button type="submit" className="icon-btn add">Добавить подход</button>
       </form>
 
-      {/* Кнопка Следующее теперь прямо под формой */}
       <div className="nav-buttons-top">
         <button 
           className="next-btn" 
-          onClick={onNext}
-          disabled={isLast || !isCompleted}
+          onClick={isLast ? onFinish : onNext} // Если это последнее упражнение - завершаем
+          disabled={!isCompleted}
         >
-          {isLast 
-            ? 'Конец тренировки' 
-            : (!isCompleted 
-                ? 'Заполните все подходы' // Текст кнопки, если не всё выполнено
-                : 'Следующее →')}
+          {btnText}
         </button>
         {showPrev && (
           <button className="prev-btn-text" onClick={onPrev}>
@@ -195,14 +201,13 @@ function ExercisePage({ exercise, dayName, workouts, setWorkouts, onNext, onPrev
         )}
       </div>
 
-      {/* Блок прогресса перед историей */}
       <div className={`progress-status ${isCompleted ? 'completed' : ''}`}>
         Выполнено {completedSetsToday} из {targetSets} подходов
       </div>
 
       <div className="history-section">
-        <h3>История:</h3>
-        {exerciseWorkouts.length === 0 ? (
+        <h3>Текущая тренировка:</h3>
+        {currentSessionSets.length === 0 ? (
           <p className="empty-text">Нет записей</p>
         ) : (
           <>
@@ -221,12 +226,12 @@ function ExercisePage({ exercise, dayName, workouts, setWorkouts, onNext, onPrev
               ))}
             </div>
             
-            {exerciseWorkouts.length > 9 && (
+            {currentSessionSets.length > 9 && (
               <button 
                 className="show-more-btn" 
                 onClick={() => setShowAllSets(!showAllSets)}
               >
-                {showAllSets ? 'Скрыть' : `Показать все (${exerciseWorkouts.length})`}
+                {showAllSets ? 'Скрыть' : `Показать все (${currentSessionSets.length})`}
               </button>
             )}
           </>
@@ -246,13 +251,30 @@ function App() {
     return saved ? JSON.parse(saved) : []
   })
 
+  // ID текущей сессии (сбрасывается при завершении тренировки)
+  const [activeSession, setActiveSession] = useState(() => {
+    const savedSession = localStorage.getItem('ppl-session')
+    return savedSession ? Number(savedSession) : Date.now()
+  })
+
   useEffect(() => {
     localStorage.setItem('my-ppl-workouts', JSON.stringify(workouts))
-  }, [workouts])
+    localStorage.setItem('ppl-session', activeSession.toString())
+  }, [workouts, activeSession])
 
   const handleDayChange = (day) => {
     setActiveDay(day)
     setCurrentExerciseIndex(0)
+  }
+
+  // ФУНКЦИЯ ЗАВЕРШЕНИЯ ТРЕНИРОВКИ (КОНЕЦ ЦИКЛА)
+  const handleFinishWorkout = () => {
+    if (window.confirm('Тренировка завершена! Начать новый цикл (Push) с чистыми счетчиками?')) {
+      setActiveSession(Date.now()) // Генерируем новую сессию -> счетчики обнуляются
+      setActiveDay('Push')         // Возвращаемся на первый день
+      setCurrentExerciseIndex(0)   // Возвращаемся к первому упражнению
+      window.scrollTo(0, 0)        // Скроллим вверх
+    }
   }
 
   const exportData = () => {
@@ -334,6 +356,8 @@ function App() {
               showPrev={currentExerciseIndex > 0}
               onNext={() => setCurrentExerciseIndex(prev => prev + 1)}
               onPrev={() => setCurrentExerciseIndex(prev => prev - 1)}
+              activeSession={activeSession}
+              onFinish={handleFinishWorkout} // Передаем функцию завершения
             />
 
             <div className="backup-section">
