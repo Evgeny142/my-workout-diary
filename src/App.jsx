@@ -31,8 +31,10 @@ function ExercisePage({ exercise, dayName, workouts, setWorkouts, onNext, onPrev
   const [reps, setReps] = useState('')
   const [showAllSets, setShowAllSets] = useState(false)
   
+  // Логика таймера, привязанная к реальному времени
   const [timeLeft, setTimeLeft] = useState(exercise.restMax)
   const [isTimerRunning, setIsTimerRunning] = useState(false)
+  const [endTime, setEndTime] = useState(null)
 
   const today = new Date().toLocaleDateString('ru-RU')
 
@@ -40,16 +42,15 @@ function ExercisePage({ exercise, dayName, workouts, setWorkouts, onNext, onPrev
     w => w.day === dayName && w.exercise === exercise.name
   )
 
-  // Ищем прошлый результат из ДРУГОЙ сессии (не текущей)
   const previousSessions = exerciseWorkouts.filter(w => w.session !== activeSession)
   const lastResult = previousSessions.length > 0 ? previousSessions[0] : null
 
-  // Считаем выполненные подходы ТОЛЬКО для текущей сессии
   const targetSetsStr = exercise.target.split(' × ')[0];
   const targetSets = parseInt(targetSetsStr) || 1;
   const completedSetsToday = exerciseWorkouts.filter(w => w.session === activeSession).length;
   const isCompleted = completedSetsToday >= targetSets;
 
+  // Сброс полей при смене упражнения
   useEffect(() => {
     const currentExWorkouts = workouts.filter(
       w => w.day === dayName && w.exercise === exercise.name
@@ -63,20 +64,47 @@ function ExercisePage({ exercise, dayName, workouts, setWorkouts, onNext, onPrev
       setReps('');
     }
     
+    // Сбрасываем таймер
     setTimeLeft(exercise.restMax);
     setIsTimerRunning(false);
+    setEndTime(null);
     setShowAllSets(false);
   }, [exercise, dayName]);
 
+  // Исправленный эффект таймера
   useEffect(() => {
     let interval = null;
-    if (isTimerRunning && timeLeft > 0) {
-      interval = setInterval(() => setTimeLeft(prev => prev - 1), 1000);
-    } else if (timeLeft === 0) {
-      setIsTimerRunning(false);
+    
+    if (isTimerRunning && endTime) {
+      interval = setInterval(() => {
+        const now = Date.now();
+        const remaining = Math.max(0, Math.ceil((endTime - now) / 1000));
+        setTimeLeft(remaining);
+
+        if (remaining === 0) {
+          setIsTimerRunning(false);
+          setEndTime(null);
+          // Вибрация при окончании таймера (если поддерживается)
+          if (navigator.vibrate) navigator.vibrate([200, 100, 200]);
+        }
+      }, 250); // Проверяем 4 раза в секунду для точности
     }
+
     return () => clearInterval(interval);
-  }, [isTimerRunning, timeLeft]);
+  }, [isTimerRunning, endTime]);
+
+  const startTimer = () => {
+    const newEndTime = Date.now() + exercise.restMax * 1000;
+    setEndTime(newEndTime);
+    setTimeLeft(exercise.restMax);
+    setIsTimerRunning(true);
+  };
+
+  const stopTimer = () => {
+    setIsTimerRunning(false);
+    setEndTime(null);
+    setTimeLeft(exercise.restMax);
+  };
 
   const handleAddSet = (e) => {
     e.preventDefault()
@@ -89,12 +117,11 @@ function ExercisePage({ exercise, dayName, workouts, setWorkouts, onNext, onPrev
       weight: weight,
       reps: reps,
       date: today,
-      session: activeSession // <--- Привязываем подход к текущей сессии
+      session: activeSession
     }
 
     setWorkouts([newSet, ...workouts])
-    setTimeLeft(exercise.restMax)
-    setIsTimerRunning(true)
+    startTimer(); // Автоматический запуск при добавлении подхода
   }
 
   const deleteSet = (id) => {
@@ -113,11 +140,9 @@ function ExercisePage({ exercise, dayName, workouts, setWorkouts, onNext, onPrev
     setWeight(newWeight % 1 === 0 ? newWeight.toString() : newWeight.toFixed(2))
   }
 
-  // Показываем историю ТОЛЬКО за текущую сессию, чтобы не путаться
   const currentSessionSets = exerciseWorkouts.filter(w => w.session === activeSession)
   const displayedSets = showAllSets ? currentSessionSets : currentSessionSets.slice(0, 9)
 
-  // Логика кнопки "Следующее / Конец тренировки"
   let btnText = 'Следующее →';
   if (!isCompleted) {
     btnText = `Выполнено ${completedSetsToday} из ${targetSets}`;
@@ -146,7 +171,7 @@ function ExercisePage({ exercise, dayName, workouts, setWorkouts, onNext, onPrev
         <div className="timer-display">{formatTime(timeLeft)}</div>
         <button 
           className={`timer-btn ${isTimerRunning ? 'stop' : 'start'}`} 
-          onClick={() => setIsTimerRunning(!isTimerRunning)}
+          onClick={isTimerRunning ? stopTimer : startTimer}
         >
           {isTimerRunning ? 'Стоп' : 'Отдых'}
         </button>
@@ -189,7 +214,7 @@ function ExercisePage({ exercise, dayName, workouts, setWorkouts, onNext, onPrev
       <div className="nav-buttons-top">
         <button 
           className="next-btn" 
-          onClick={isLast ? onFinish : onNext} // Если это последнее упражнение - завершаем
+          onClick={isLast ? onFinish : onNext}
           disabled={!isCompleted}
         >
           {btnText}
@@ -251,7 +276,6 @@ function App() {
     return saved ? JSON.parse(saved) : []
   })
 
-  // ID текущей сессии (сбрасывается при завершении тренировки)
   const [activeSession, setActiveSession] = useState(() => {
     const savedSession = localStorage.getItem('ppl-session')
     return savedSession ? Number(savedSession) : Date.now()
@@ -267,13 +291,12 @@ function App() {
     setCurrentExerciseIndex(0)
   }
 
-  // ФУНКЦИЯ ЗАВЕРШЕНИЯ ТРЕНИРОВКИ (КОНЕЦ ЦИКЛА)
   const handleFinishWorkout = () => {
     if (window.confirm('Тренировка завершена! Начать новый цикл (Push) с чистыми счетчиками?')) {
-      setActiveSession(Date.now()) // Генерируем новую сессию -> счетчики обнуляются
-      setActiveDay('Push')         // Возвращаемся на первый день
-      setCurrentExerciseIndex(0)   // Возвращаемся к первому упражнению
-      window.scrollTo(0, 0)        // Скроллим вверх
+      setActiveSession(Date.now())
+      setActiveDay('Push')
+      setCurrentExerciseIndex(0)
+      window.scrollTo(0, 0)
     }
   }
 
@@ -357,7 +380,7 @@ function App() {
               onNext={() => setCurrentExerciseIndex(prev => prev + 1)}
               onPrev={() => setCurrentExerciseIndex(prev => prev - 1)}
               activeSession={activeSession}
-              onFinish={handleFinishWorkout} // Передаем функцию завершения
+              onFinish={handleFinishWorkout}
             />
 
             <div className="backup-section">
