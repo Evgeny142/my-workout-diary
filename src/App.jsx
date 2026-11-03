@@ -31,7 +31,6 @@ function ExercisePage({ exercise, dayName, workouts, setWorkouts, onNext, onPrev
   const [reps, setReps] = useState('')
   const [showAllSets, setShowAllSets] = useState(false)
   
-  // Логика таймера, привязанная к реальному времени
   const [timeLeft, setTimeLeft] = useState(exercise.restMax)
   const [isTimerRunning, setIsTimerRunning] = useState(false)
   const [endTime, setEndTime] = useState(null)
@@ -50,7 +49,6 @@ function ExercisePage({ exercise, dayName, workouts, setWorkouts, onNext, onPrev
   const completedSetsToday = exerciseWorkouts.filter(w => w.session === activeSession).length;
   const isCompleted = completedSetsToday >= targetSets;
 
-  // Сброс полей при смене упражнения
   useEffect(() => {
     const currentExWorkouts = workouts.filter(
       w => w.day === dayName && w.exercise === exercise.name
@@ -64,14 +62,12 @@ function ExercisePage({ exercise, dayName, workouts, setWorkouts, onNext, onPrev
       setReps('');
     }
     
-    // Сбрасываем таймер
     setTimeLeft(exercise.restMax);
     setIsTimerRunning(false);
     setEndTime(null);
     setShowAllSets(false);
   }, [exercise, dayName]);
 
-  // Исправленный эффект таймера
   useEffect(() => {
     let interval = null;
     
@@ -84,10 +80,9 @@ function ExercisePage({ exercise, dayName, workouts, setWorkouts, onNext, onPrev
         if (remaining === 0) {
           setIsTimerRunning(false);
           setEndTime(null);
-          // Вибрация при окончании таймера (если поддерживается)
           if (navigator.vibrate) navigator.vibrate([200, 100, 200]);
         }
-      }, 250); // Проверяем 4 раза в секунду для точности
+      }, 250); 
     }
 
     return () => clearInterval(interval);
@@ -121,7 +116,7 @@ function ExercisePage({ exercise, dayName, workouts, setWorkouts, onNext, onPrev
     }
 
     setWorkouts([newSet, ...workouts])
-    startTimer(); // Автоматический запуск при добавлении подхода
+    startTimer();
   }
 
   const deleteSet = (id) => {
@@ -142,13 +137,6 @@ function ExercisePage({ exercise, dayName, workouts, setWorkouts, onNext, onPrev
 
   const currentSessionSets = exerciseWorkouts.filter(w => w.session === activeSession)
   const displayedSets = showAllSets ? currentSessionSets : currentSessionSets.slice(0, 9)
-
-  let btnText = 'Следующее →';
-  if (!isCompleted) {
-    btnText = `Выполнено ${completedSetsToday} из ${targetSets}`;
-  } else if (isLast) {
-    btnText = 'Конец тренировки';
-  }
 
   return (
     <div className="exercise-page">
@@ -211,23 +199,26 @@ function ExercisePage({ exercise, dayName, workouts, setWorkouts, onNext, onPrev
         <button type="submit" className="icon-btn add">Добавить подход</button>
       </form>
 
-      <div className="nav-buttons-top">
-        <button 
-          className="next-btn" 
-          onClick={isLast ? onFinish : onNext}
-          disabled={!isCompleted}
-        >
-          {btnText}
-        </button>
-        {showPrev && (
-          <button className="prev-btn-text" onClick={onPrev}>
-            ← Предыдущее упражнение
+      {/* ЕДИНСТВЕННЫЙ БЛОК ПРОГРЕССА И КНОПКИ НАВИГАЦИИ */}
+      <div className="progress-nav-container">
+        <div className={`progress-status ${isCompleted ? 'completed' : ''}`}>
+          Выполнено {completedSetsToday} из {targetSets} подходов
+        </div>
+        
+        <div className="nav-buttons-top">
+          <button 
+            className="next-btn" 
+            onClick={isLast ? onFinish : onNext}
+            disabled={!isCompleted}
+          >
+            {isLast ? 'Конец тренировки' : 'Следующее →'}
           </button>
-        )}
-      </div>
-
-      <div className={`progress-status ${isCompleted ? 'completed' : ''}`}>
-        Выполнено {completedSetsToday} из {targetSets} подходов
+          {showPrev && (
+            <button className="prev-btn-text" onClick={onPrev}>
+              ← Предыдущее упражнение
+            </button>
+          )}
+        </div>
       </div>
 
       <div className="history-section">
@@ -356,6 +347,7 @@ function App() {
       <main className="app-content">
         <div className="layout-container">
           
+          {/* ВЕРТИКАЛЬНЫЙ СПИСОК УПРАЖНЕНИЙ */}
           <nav className="exercise-sidebar">
             <h3>Упражнения</h3>
             {PROGRAM[activeDay].map((ex, index) => (
